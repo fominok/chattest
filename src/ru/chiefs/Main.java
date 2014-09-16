@@ -6,5 +6,6 @@ package ru.chiefs;
 public class Main {
     public static void main(String[] args) {
         System.out.print("ThA BIEST SHIET BEGINEN TERE");
+        System.out.print("Y U DON COMMITIN FUCK IDEA");
     }
 }
