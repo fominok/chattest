@@ -1,0 +1,7 @@
+OH SHIET
+IT IS C.H.A.T.E.G.
+ONE MORE TIME
+AGAIN
+
+RETURNED
+3d and imax 3d
