@@ -2,6 +2,7 @@ package ru.chiefs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Socket;
 
 /**
  * Created by yolo on 17.09.14.
@@ -20,6 +21,8 @@ public class Main {
         Parent parent = new Parent();
         FunctionCaller caller = new FunctionCaller(parent);
         caller.tryinShit(); //Это что-то типо произошло на стороне, оттуда берем обратный вызов. МАКЕТ ХУЛИ
+
+
     }
 
 }
