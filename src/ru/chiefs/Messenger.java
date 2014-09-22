@@ -18,41 +18,44 @@ public class Messenger {
 
     Boolean working;
 
-    public Messenger(Socket sock, IMessengerUi userInterface){
+    public Messenger(Socket sock, IMessengerUi userInterface) throws IOException {
         this.sock = sock;
         this.userInterface = userInterface;
         working = true;
 
-        try {
-            inputStream = new DataInputStream(sock.getInputStream());
-            outputStream = new DataOutputStream(sock.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-            userInterface.showLog(e.getMessage());
-        }
 
-        receiveThread = new Thread(){
+        inputStream = new DataInputStream(sock.getInputStream());
+        outputStream = new DataOutputStream(sock.getOutputStream());
+
+        receiveThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 String message;
                 while(working) {
-                    try {
+                    try { //Надо бы вынести обработчик, по-хорошему. ХЗ какт
                         message = inputStream.readUTF();
                         userInterface.showMessage(message);
                     } catch (IOException e) {
                         e.printStackTrace();
                         userInterface.showLog(e.getMessage());
+                        working = false;
                     }
                 }
             }
-        };
-        receiveThread.run();
+        });
+        receiveThread.start();
     }
 
 
     public void sendMessage (String message) throws IOException {
-        //TODO:using socket to send some shiet
         outputStream.writeUTF(message);
         outputStream.flush();
+    }
+
+    public void endSession() throws IOException {
+        inputStream.close();
+        outputStream.close();
+        working = false;
+        sock.close();
     }
 }

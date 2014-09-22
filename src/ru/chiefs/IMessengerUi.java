@@ -5,5 +5,6 @@ package ru.chiefs;
  */
 public interface IMessengerUi {
     void showMessage (String message);
-    void showLog (String logMessage);
+    void showLog(String logMessage);
+
 }
