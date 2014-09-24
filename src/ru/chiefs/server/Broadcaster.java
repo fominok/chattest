@@ -17,11 +17,19 @@ public class Broadcaster {
 
     public Broadcaster(IServerUi ui){
         this.ui = ui;
-        this.clients = new ArrayList<>();
+        this.clients = new ArrayList<Socket>();
+        this.clientOutputs = new ArrayList<DataOutputStream>();
+        this.clientThreads = new ArrayList<Thread>();
     }
 
-    public void addClient(Socket socket){
+    public void addClient(Socket socket) {
         clients.add(socket);
+        try {
+            clientOutputs.add(new DataOutputStream(socket.getOutputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            ui.showLogMessage(e.getMessage()); //wtf could happen here
+        }
         clientThreads.add(new Thread(new Runnable() {
             boolean working = true;
             Socket thisClient = socket;
@@ -42,7 +50,7 @@ public class Broadcaster {
                 }
             }
         }));
-        clientThreads.get(clientThreads.size()).start();
+        clientThreads.get(clientThreads.size()-1).start();
     }
 
     private void broadcast(String message){
@@ -60,8 +68,8 @@ public class Broadcaster {
     private void removeDisconnected(Socket sock){
         int index = clients.indexOf(sock);
         clients.remove(index);
-        clientOutputs.remove(index);
-        clientThreads.remove(index);
+        //clientOutputs.remove(index);
+        //clientThreads.remove(index);
     }
 
     private void removeDisconnected(DataOutputStream outputStream){
