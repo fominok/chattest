@@ -22,15 +22,17 @@ public class ConsoleUi implements IMessengerUi {
 
         while (pedor) {
             try {
-                System.out.print("айпи слыш: ");
-                userInput = scan.nextLine();
-                InetAddress addr = InetAddress.getByName(userInput);
+                //System.out.print("айпи слыш: ");
+                //userInput = scan.nextLine();
+                //InetAddress addr = InetAddress.getByName(userInput);
+                InetAddress addr = InetAddress.getByName("178.162.5.219");
                 socket = connector.connectAsClient(addr);
                 messenger = new Messenger(socket,this);
                 pedor = false;
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 this.showLog(e.getMessage());
+                this.showLog("Server is offline or bad connection");
             } catch (IOException e) {
                 e.printStackTrace();
                 this.showLog(e.getMessage());
