@@ -1,4 +1,4 @@
-package ru.chiefs;
+package ru.chiefs.client;
 
 import java.io.IOException;
 

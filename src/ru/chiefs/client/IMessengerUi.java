@@ -1,4 +1,4 @@
-package ru.chiefs;
+package ru.chiefs.client;
 
 /**
  * Created by yolo on 18.09.14.
