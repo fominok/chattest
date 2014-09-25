@@ -1,7 +1,6 @@
 package ru.chiefs.server;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -10,34 +9,41 @@ import java.util.ArrayList;
  * Created by yolo on 24.09.14.
  */
 public class Broadcaster {
-    private ArrayList<Socket> clients;
-    private ArrayList<Thread> clientThreads;
-    private ArrayList<DataOutputStream> clientOutputs;
+    private ArrayList<Client> clients;
+    //private ArrayList<Thread> clientThreads; //в пизду его
     private IServerUi ui;
 
     public Broadcaster(IServerUi ui){
         this.ui = ui;
-        this.clients = new ArrayList<Socket>();
-        this.clientOutputs = new ArrayList<DataOutputStream>();
-        this.clientThreads = new ArrayList<Thread>();
+        this.clients = new ArrayList<>();
+        //this.clientThreads = new ArrayList<>();
     }
 
     public void addClient(Socket socket) {
-        clients.add(socket);
-        try {
+        final Client currentClient;
+        try{
+            currentClient = new Client(socket);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ui.showLogMessage(e.getMessage());
+            return;
+        }
+        clients.add(currentClient);
+        /*try {
             clientOutputs.add(new DataOutputStream(socket.getOutputStream()));
         } catch (IOException e) {
             e.printStackTrace();
             ui.showLogMessage(e.getMessage()); //wtf could happen here
-        }
-        clientThreads.add(new Thread(new Runnable() {
+        }*/
+
+        //OMG ANONYMOUS THREAD
+        new Thread(new Runnable() {
             boolean working = true;
-            Socket thisClient = socket;
-            String temp = new String();
+            String temp;
             @Override
             public void run() {
                 try{
-                    DataInputStream input = new DataInputStream(thisClient.getInputStream());
+                    DataInputStream input = currentClient.getInputStream();
                     while (working) {
                         temp = input.readUTF();
                         broadcast(temp);
@@ -46,36 +52,27 @@ public class Broadcaster {
                     e.printStackTrace();
                     ui.showLogMessage("Someone has disconnected");
                     working = false;
-                    removeDisconnected(thisClient);
+                    removeDisconnected(currentClient);
                 }
             }
-        }));
-        clientThreads.get(clientThreads.size()-1).start();
+        }).start();
     }
 
     private void broadcast(String message){
-        for (DataOutputStream outputStream : clientOutputs){
+        for (Client client : clients){
             try {
-                outputStream.writeUTF(message);
+                client.getOutputStream().writeUTF(message);
             } catch (IOException e) {
                 e.printStackTrace();
                 ui.showLogMessage("Someone has disconnected");
-                removeDisconnected(outputStream);
+                removeDisconnected(client);
             }
         }
     }
 
-    private void removeDisconnected(Socket sock){
-        int index = clients.indexOf(sock);
-        clients.remove(index);
-        //clientOutputs.remove(index);
-        //clientThreads.remove(index);
-    }
-
-    private void removeDisconnected(DataOutputStream outputStream){
-        int index = clientOutputs.indexOf(outputStream);
-        clients.remove(index);
-        clientOutputs.remove(index);
-        clientThreads.remove(index);
+    private void removeDisconnected(Client client){
+        //int index = clients.indexOf(client);
+        clients.remove(client);
+        //clientThreads.remove(index); //Ящетаю, что тред сам себя успешно завершит. А лист нахер не нужен лол
     }
 }
