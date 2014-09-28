@@ -1,6 +1,10 @@
 package ru.chiefs.client;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -8,26 +12,50 @@ import java.net.Socket;
  */
 public class MainWindow extends JFrame implements IMessengerUi {
     private JPanel mainPanel;
-    private Socket socket;
+    private JPanel messengerPanel;
+    private JPanel inputPanel;
+    private JTextField inputText;
+    private JTextArea messengerArea;
+    private JScrollPane scrollPane;
 
-    public JLabel getLabel() {
-        return label;
-    }
+    private Messenger messenger;
+    private String name;
 
-    private JLabel label;
-
-    public MainWindow(Socket socket){
-        this.socket = socket;
+    public MainWindow(Socket socket, final String name){
+        this.name = name;
+        try {
+            messenger = new Messenger(socket,this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("wtf could happen here");
+        }
         this.setBounds(100,100,700,600);
         setContentPane(mainPanel);
 
+        DefaultCaret caret = (DefaultCaret) messengerArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        messengerArea.setEditable(false);
+
+        inputText.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    messenger.sendMessage(name + ": " + inputText.getText());
+                } catch (IOException e1) {
+                    JPanel lostPanel = new JPanel();
+                    lostPanel.add(new JLabel("Connection lost"));
+                    JOptionPane.showMessageDialog(null,lostPanel,"So sorry",JOptionPane.OK_CANCEL_OPTION);
+                }
+                inputText.setText("");
+            }
+        });
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     @Override
     public void showMessage(String message) {
-
+        messengerArea.append(message + "\n");
     }
 
     @Override

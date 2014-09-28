@@ -9,16 +9,16 @@ import java.net.Socket;
  * Created by yolo on 18.09.14.
  */
 public class Messenger {
-    Socket sock;
-    IMessengerUi userInterface;
-    Thread receiveThread;
+    private Socket sock;
+    private IMessengerUi userInterface;
+    private Thread receiveThread;
 
-    DataInputStream inputStream;
-    DataOutputStream outputStream;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
 
-    Boolean working;
+    private Boolean working;
 
-    public Messenger(Socket sock, IMessengerUi userInterface) throws IOException {
+    public Messenger(Socket sock,final IMessengerUi userInterface) throws IOException {
         this.sock = sock;
         this.userInterface = userInterface;
         working = true;

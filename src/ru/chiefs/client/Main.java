@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -28,15 +30,26 @@ public class Main {
         }*/
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         JPanel helloPanel = new JPanel();
-        JTextField field = new JTextField("What's your name?");
-        helloPanel.add(field);
+        final JTextField nameField = new JTextField("What's your name?");
+        nameField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                nameField.setText("");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+            }
+        });
+        helloPanel.add(nameField);
         int result = JOptionPane.showConfirmDialog(
                 null,helloPanel,"Hellou",JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION){
-            helloPanel.remove(field);
+            helloPanel.remove(nameField);
             JLabel connectionLabel = new JLabel("Establishing connection...");
             helloPanel.add(connectionLabel);
-            JDialog connectionDialog = new JDialog();
+            final JDialog connectionDialog = new JDialog();
             connectionDialog.add(helloPanel);
             connectionDialog.setBounds(screenSize.width/2-150,screenSize.height/2-50,300,100);
             connectionDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -50,7 +63,7 @@ public class Main {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         tryConnection();
-                        runUi(connectionDialog);
+                        runUi(connectionDialog,nameField.getText());
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
@@ -59,7 +72,7 @@ public class Main {
 
             try {
                 tryConnection();
-                runUi(connectionDialog);
+                runUi(connectionDialog,nameField.getText());
             } catch (IOException e) {
                 e.printStackTrace();
                 connectionLabel.setText("Could not connect");
@@ -75,9 +88,9 @@ public class Main {
 
     }
 
-    private static void runUi(JDialog conDiag){
+    private static void runUi(JDialog conDiag, String name){
         conDiag.dispose();
-        MainWindow window = new MainWindow(socket);
+        MainWindow window = new MainWindow(socket,name);
         window.setVisible(true);
     }
 
